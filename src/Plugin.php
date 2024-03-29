@@ -12,7 +12,7 @@ use craft\events\ExceptionEvent;
 use craft\events\TemplateEvent;
 use craft\web\ErrorHandler;
 use craft\web\View;
-
+use Exception;
 use Sentry;
 use Sentry\State\Scope;
 
@@ -114,40 +114,37 @@ class Plugin extends CraftPlugin
          * Init Sentry JS SDK (Front end)
          */
         if (Craft::$app->request->isSiteRequest && $settings->reportJsErrors) {
-            Event::on(
-                View::class,
-                View::EVENT_BEFORE_RENDER_TEMPLATE,
-                function (TemplateEvent $event) {
-                    $settings = $this->getSettings();
-                    $view = Craft::$app->getView();
+            if (!isset($settings->clientKey)) {
+                throw new Exception('Failed to register Sentry browser client due to missing clientKey');
+                return;
+            } else {
+                Event::on(
+                    View::class,
+                    View::EVENT_BEFORE_RENDER_TEMPLATE,
+                    function (TemplateEvent $event) {
+                        $settings = $this->getSettings();
+                        $view = Craft::$app->getView();
 
-                    $view->registerScript(
-                        "",
-                        View::POS_END,
-                        array_merge([
-                            'src' => 'https://browser.sentry-cdn.com/6.3.5/bundle.tracing.min.js',
-                            'crossorigin' => 'anonymous',
-                            'integrity' => 'sha384-0RpBr4PNjUAqckh8BtmPUuFGNC082TAztkL1VE2ttmtsYJBUvqcZbThnfE5On6h1',
-                        ], $this->getScriptOptions())
-                    );
+                        $view->registerScript("
+                        // Configure sentryOnLoad before adding the Loader Script
+                        window.sentryOnLoad = function () {
+                            Sentry.init({
+                            release: '$settings->release',
+                            environment: '".App::env('CRAFT_ENVIRONMENT')."'
+                            });
+                        };", View::POS_END, $this->getScriptOptions());
 
-                    // Returns devMode boolean as a string so it can be passed to the debug parameter properly.
-                    $isDevMode = Craft::$app->config->general->devMode ? 'true' : 'false';
-                    $autoSessionTracking = $settings->autoSessionTracking ? 'true' : 'false';
-                    $performanceMonitoring = $settings->performanceMonitoring ? 'integrations: [new Sentry.Integrations.BrowserTracing()],' : '';
-                    
-                    $view->registerScript("
-                    Sentry.init({
-                      dsn: '$settings->clientDsn',
-                      release: '$settings->release',
-                      environment: '".App::env('CRAFT_ENVIRONMENT')."',
-                      debug: $isDevMode,
-                      $performanceMonitoring
-                      tracesSampleRate: $settings->sampleRate,
-                      autoSessionTracking: $autoSessionTracking
-                    });", View::POS_END, $this->getScriptOptions());
-                }
-            );
+                        $view->registerScript(
+                            "",
+                            View::POS_END,
+                            array_merge([
+                                'src' => "https://js.sentry-cdn.com/$settings->clientKey.min.js",
+                                'crossorigin' => 'anonymous',
+                            ], $this->getScriptOptions())
+                        );
+                    }
+                );
+            }
         }
 
         /**

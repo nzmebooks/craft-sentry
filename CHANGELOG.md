@@ -1,5 +1,13 @@
 # Craft Sentry Changelog
 
+## 3.0.0-beta.1 - 2024-03-29
+### Changed
+- Added craft 5 support
+- Moved to Sentry PHP SDK 4.x
+- Moved to latest Sentry Browser SDK
+- Client settings are removed in favor of Sentry's "Loader Script" settings page.
+- Removed `performanceMonitoring` and `autoSessionTracking` settings.
+
 ## 2.0.1 - 2022-09-16
 ### Changed
 - If the exception is a Twig Runtime exception, use the previous one instead. Thanks to @kringkaste
