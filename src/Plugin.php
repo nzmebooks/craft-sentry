@@ -130,7 +130,8 @@ class Plugin extends CraftPlugin
                         window.sentryOnLoad = function () {
                             Sentry.init({
                             release: '$settings->release',
-                            environment: '".App::env('CRAFT_ENVIRONMENT')."'
+                            environment: '".App::env('CRAFT_ENVIRONMENT')."',
+                            ignoreErrors: '$settings->ignoreErrors',
                             });
                         };", View::POS_END, $this->getScriptOptions());
 
