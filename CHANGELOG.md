@@ -1,5 +1,9 @@
 # Craft Sentry Changelog
 
+## 3.1.1-beta.1 - 2024-06-10
+### Changed
+- Corrected treatment of ignoreErrors option as an array
+
 ## 3.1.0-beta.1 - 2024-06-10
 ### Changed
 - Added ignoreErrors option for use with sentry js client
