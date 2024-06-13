@@ -14,6 +14,7 @@ class Settings extends Model
     public $release; // Release number/name used by sentry.
     public $reportJsErrors = false; // Client only option
     public $sampleRate = 1.0; // Client only option
+    public $ignoreErrors = [];
 
     /**
      * @inheritdoc
@@ -23,6 +24,7 @@ class Settings extends Model
         return [
             [['enabled', 'anonymous', 'reportJsErrors'], 'boolean'],
             [['clientDsn', 'clientKey', 'excludedCodes', 'release'], 'string'],
+            [['ignoreErrors'], 'array'],
             [['clientDsn'], 'required'],
             [['sampleRate'], 'number', 'min' => 0, 'max' => 1],
         ];

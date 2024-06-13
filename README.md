@@ -29,10 +29,16 @@ return [
         'enabled'        => true,
         'anonymous'      => false, // Determines to log user info or not
         'clientDsn'      => getenv('SENTRY_DSN') ?: 'https://example@sentry.io/123456789', // Set as string or use environment variable.
+        'clientKey'      => getenv('SENTRY_CLIENT_KEY') ?: 'z987654321a', // https://js.sentry-cdn.com/z987654321a.min.js
         'excludedCodes'  => ['400', '404', '429'],
         'release'        => getenv('SENTRY_RELEASE') ?: null, // Release number/name used by sentry.
         'reportJsErrors' => false,
         'sampleRate'     => 1.0,
+        'ignoreErrors'   => [
+          // Email link Microsoft Outlook crawler compatibility error
+          // cf. https://forum.sentry.io/t/unhandledrejection-non-error-promise-rejection-captured-with-value/14062
+          "Non-Error promise rejection captured with value: Object Not Found Matching Id:",
+        ]
     ],
 ];
 ```

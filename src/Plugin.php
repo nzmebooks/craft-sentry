@@ -124,13 +124,15 @@ class Plugin extends CraftPlugin
                     function (TemplateEvent $event) {
                         $settings = $this->getSettings();
                         $view = Craft::$app->getView();
+                        $ignoreErrors = json_encode($settings->ignoreErrors);
 
                         $view->registerScript("
                         // Configure sentryOnLoad before adding the Loader Script
                         window.sentryOnLoad = function () {
                             Sentry.init({
                             release: '$settings->release',
-                            environment: '".App::env('CRAFT_ENVIRONMENT')."'
+                            environment: '".App::env('CRAFT_ENVIRONMENT')."',
+                            ignoreErrors: $ignoreErrors,
                             });
                         };", View::POS_END, $this->getScriptOptions());
 
